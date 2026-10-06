@@ -1,0 +1,98 @@
+### 1. Register Job Seeker
+POST http://localhost:5001/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Budi Pencari Kerja",
+  "email": "budi@gmail.com",
+  "password": "123",
+  "role": "JOB_SEEKER"
+}
+
+###
+
+### 2. Login Job Seeker
+# @name login_jobseeker
+POST http://localhost:5001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "budi@gmail.com",
+  "password": "123"
+}
+
+###
+@seeker_token = {{login_jobseeker.response.body.token}}
+
+### 3. Register Company
+POST http://localhost:5001/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "PT. Startup Hebat",
+  "email": "hrd@startup.com",
+  "password": "123",
+  "role": "COMPANY"
+}
+
+###
+
+### 4. Login Company
+# @name login_company
+POST http://localhost:5001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "hrd@startup.com",
+  "password": "123"
+}
+
+###
+@company_token = {{login_company.response.body.token}}
+
+
+### 5. Company - Buat Lowongan
+POST http://localhost:5001/api/jobs
+Content-Type: application/json
+Authorization: Bearer {{company_token}}
+
+{
+  "title": "Frontend Developer",
+  "description": "Menguasai React dan Tailwind CSS.",
+  "location": "Bandung",
+  "salary": 8000000,
+  "jobType": "FULL_TIME"
+}
+
+###
+
+### 6. Job Seeker - Lihat Lowongan
+# @name get_jobs
+GET http://localhost:5001/api/jobs
+Authorization: Bearer {{seeker_token}}
+
+###
+@job_id = {{get_jobs.response.body.0.id}}
+
+### 7. Job Seeker - Melamar Pekerjaan
+POST http://localhost:5001/api/applications/{{job_id}}
+Authorization: Bearer {{seeker_token}}
+
+###
+
+### 8. Company - Lihat Lamaran Masuk
+# @name get_applications
+GET http://localhost:5001/api/applications/company
+Authorization: Bearer {{company_token}}
+
+###
+@app_id = {{get_applications.response.body.0.id}}
+
+### 9. Company - Ubah Status Lamaran
+PATCH http://localhost:5001/api/applications/{{app_id}}/status
+Content-Type: application/json
+Authorization: Bearer {{company_token}}
+
+{
+  "status": "ACCEPTED"
+}

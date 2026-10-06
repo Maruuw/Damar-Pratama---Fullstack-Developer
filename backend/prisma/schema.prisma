@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  JOB_SEEKER
+  COMPANY
+}
+
+enum ApplicationStatus {
+  APPLIED
+  REVIEWING
+  SHORTLISTED
+  REJECTED
+  ACCEPTED
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  name         String
+  role         Role
+  jobs         Job[]         // Only if role == COMPANY
+  applications Application[] // Only if role == JOB_SEEKER
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Job {
+  id          String        @id @default(uuid())
+  title       String
+  companyId   String
+  company     User          @relation(fields: [companyId], references: [id])
+  location    String
+  salary      String
+  jobType     String
+  applications Application[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Application {
+  id          String              @id @default(uuid())
+  jobId       String
+  job         Job                 @relation(fields: [jobId], references: [id])
+  userId      String
+  user        User                @relation(fields: [userId], references: [id])
+  status      ApplicationStatus   @default(APPLIED)
+  history     ApplicationHistory[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@unique([jobId, userId]) // Job Seeker cannot apply for the same job more than once
+}
+
+model ApplicationHistory {
+  id            String            @id @default(uuid())
+  applicationId String
+  application   Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  oldStatus     ApplicationStatus?
+  newStatus     ApplicationStatus
+  changedAt     DateTime          @default(now())
+}

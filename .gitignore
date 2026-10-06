@@ -1,0 +1,19 @@
+# Credentials
+.env
+
+# Dependencies
+node_modules/
+
+# Ignore the PDF assessment file
+Tech Assesment Indokerja.pdf
+"Tech Assesment Indokerja.pdf"
+*.pdf
+
+# Build outputs
+dist/
+build/
+.next/
+
+# IDEs and OS files
+.DS_Store
+.vscode/
